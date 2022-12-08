@@ -8,22 +8,18 @@ var minimax = function(depth, game, maxPlayer) {
 
     var bestMove;
     var moves = game.ugly_moves()
-    console.log("Depth " + depth);
     if(maxPlayer)
     {
         if ( depth == 0 ) return evaluateBoard(game.board());
         var max = -Infinity;
         for (var m = 0; m < moves.length; m++) {
-            console.log("Max Move " + moves[m].piece);
             game.ugly_move(moves[m]);
             var score = mini( depth - 1, game );
-            console.log("Max Max Score " + score);
             game.undo();
             if( score >= max )
             {
                 max = score;
                 bestMove = moves[m];
-                console.log("Max Move set");
             }
         }
     }
@@ -32,16 +28,13 @@ var minimax = function(depth, game, maxPlayer) {
         if ( depth == 0 ) return evaluateBoard(game.board());
         var min = Infinity;
         for (var m = 0; m < moves.length; m++) {
-            console.log("Move " + moves[m].piece);
             game.ugly_move(moves[m]);
             var score = maxi( depth - 1, game );
-            console.log("Mini Score " + score);
             game.undo();
             if( score <= min )
             {
                 min = score;
                 bestMove = moves[m];
-                console.log("Mini Move set");
             }
         }
     }
@@ -50,15 +43,13 @@ var minimax = function(depth, game, maxPlayer) {
 }
 
 var maxi = function( depth, game ) {
-    console.log("Depth " + depth);
+    positionCount++;
     if ( depth == 0 ) return evaluateBoard(game.board());
     var max = -Infinity;
-    var moves = game.moves()
+    var moves = game.ugly_moves()
     for (var m = 0; m < moves.length; m++) {
-        console.log("Max Move " + moves[m].piece);
         game.ugly_move(moves[m]);
         var score = mini( depth - 1, game );
-        console.log("Max Score " + score);
         game.undo();
         if( score > max )
             max = score;
@@ -67,15 +58,13 @@ var maxi = function( depth, game ) {
 }
 
 var mini = function ( depth, game ) {
-    console.log("Depth " + depth);
+    positionCount++;
     if ( depth == 0 ) return evaluateBoard(game.board());
     var min = Infinity;
-    var moves = game.moves()
+    var moves = game.ugly_moves()
     for (var m = 0; m < moves.length; m++) {
-        console.log("Mini Move " + moves[m].piece);
         game.ugly_move(moves[m]);
         var score = maxi( depth - 1, game );
-        console.log("Mini Score " + score);
         game.undo();
         if( score < min )
             min = score;
@@ -88,7 +77,6 @@ var evaluateBoard = function (board) {
     for (var i = 0; i < 8; i++) {
         for (var j = 0; j < 8; j++) {
             totalScore = totalScore + getPieceValue(board[i][j]);
-            console.log(board[i][j] + " " + getPieceValue(board[i][j]));
         }
     }
 
@@ -164,10 +152,18 @@ var getBestMove = function (game) {
         alert('Game over');
     }
 
-    var depth = 1;
+    positionCount = 0;
+    var depth = parseInt($('#search-depth').find(':selected').text());
 
-    var bestMove = minimax(depth, game, false); /* this is up to our AI! */
-    
+    var d = new Date().getTime();
+    var bestMove = minimax(depth, game, false);
+    var d2 = new Date().getTime();
+    var moveTime = (d2 - d);
+    var positionsPerS = ( positionCount * 1000 / moveTime);
+
+    $('#position-count').text(positionCount);
+    $('#time').text(moveTime/1000 + 's');
+    $('#positions-per-s').text(positionsPerS);
     return bestMove;
 };
 
