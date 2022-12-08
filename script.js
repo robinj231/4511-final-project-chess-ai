@@ -3,7 +3,141 @@ var board,
 
 /*The "AI" part starts here */
 
+// returns move object, uses mini and maxi
+var minimax = function(depth, game, maxPlayer) {
 
+    var bestMove;
+    var moves = game.ugly_moves()
+    console.log("Depth " + depth);
+    if(maxPlayer)
+    {
+        if ( depth == 0 ) return evaluateBoard(game.board());
+        var max = -Infinity;
+        for (var m = 0; m < moves.length; m++) {
+            console.log("Max Move " + moves[m].piece);
+            game.ugly_move(moves[m]);
+            var score = mini( depth - 1, game );
+            console.log("Max Max Score " + score);
+            game.undo();
+            if( score >= max )
+            {
+                max = score;
+                bestMove = moves[m];
+                console.log("Max Move set");
+            }
+        }
+    }
+    else
+    {
+        if ( depth == 0 ) return evaluateBoard(game.board());
+        var min = Infinity;
+        for (var m = 0; m < moves.length; m++) {
+            console.log("Move " + moves[m].piece);
+            game.ugly_move(moves[m]);
+            var score = maxi( depth - 1, game );
+            console.log("Mini Score " + score);
+            game.undo();
+            if( score <= min )
+            {
+                min = score;
+                bestMove = moves[m];
+                console.log("Mini Move set");
+            }
+        }
+    }
+
+    return bestMove;
+}
+
+var maxi = function( depth, game ) {
+    console.log("Depth " + depth);
+    if ( depth == 0 ) return evaluateBoard(game.board());
+    var max = -Infinity;
+    var moves = game.moves()
+    for (var m = 0; m < moves.length; m++) {
+        console.log("Max Move " + moves[m].piece);
+        game.ugly_move(moves[m]);
+        var score = mini( depth - 1, game );
+        console.log("Max Score " + score);
+        game.undo();
+        if( score > max )
+            max = score;
+    }
+    return max;
+}
+
+var mini = function ( depth, game ) {
+    console.log("Depth " + depth);
+    if ( depth == 0 ) return evaluateBoard(game.board());
+    var min = Infinity;
+    var moves = game.moves()
+    for (var m = 0; m < moves.length; m++) {
+        console.log("Mini Move " + moves[m].piece);
+        game.ugly_move(moves[m]);
+        var score = maxi( depth - 1, game );
+        console.log("Mini Score " + score);
+        game.undo();
+        if( score < min )
+            min = score;
+    }
+    return min;
+}
+
+var evaluateBoard = function (board) {
+    var totalScore = 0;
+    for (var i = 0; i < 8; i++) {
+        for (var j = 0; j < 8; j++) {
+            totalScore = totalScore + getPieceValue(board[i][j]);
+            console.log(board[i][j] + " " + getPieceValue(board[i][j]));
+        }
+    }
+
+    return totalScore;
+}
+
+var getPieceValue = function (piece) {
+
+    if(piece == null)
+    {
+        return 0;
+    }
+
+    var multi;
+
+    if(piece.color == 'w')
+    {
+        multi = 1;
+    }
+    else
+    {
+        multi = -1;
+    }
+
+    if(piece.type == 'p')
+    {
+        return 1 * multi;
+    }
+    else if(piece.type == 'n')
+    {
+        return 3 * multi;
+    }
+    else if(piece.type == 'b')
+    {
+        return 3 * multi;
+    }
+    else if(piece.type == 'r')
+    {
+        return 5 * multi;
+    }
+    else if(piece.type == 'q')
+    {
+        return 9 * multi;
+    }
+    else if(piece.type == 'k')
+    {
+        return 500 * multi;
+    }
+}
 
 /* board visualization and games state handling */
 
@@ -24,20 +158,21 @@ var makeBestMove = function () {
     }
 };
 
-
 var positionCount;
 var getBestMove = function (game) {
     if (game.game_over()) {
         alert('Game over');
     }
 
-    var bestMove = null /* this is up to our AI! */
+    var depth = 1;
+
+    var bestMove = minimax(depth, game, false); /* this is up to our AI! */
     
     return bestMove;
 };
 
 var renderMoveHistory = function (moves) {
-    var historyElement = $('#move-history').empty();
+    var historyElement = $('#move-history').empty();    
     historyElement.empty();
     for (var i = 0; i < moves.length; i = i + 2) {
         historyElement.append('<span>' + moves[i] + ' ' + ( moves[i + 1] ? moves[i + 1] : ' ') + '</span><br>')
