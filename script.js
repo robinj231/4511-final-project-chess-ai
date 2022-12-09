@@ -7,18 +7,18 @@ var board,
 var minimax = function(depth, game, maxPlayer) {
 
     var bestMove;
-    var moves = game.ugly_moves()
+    var moves = game.ugly_moves();
     if(maxPlayer)
     {
         if ( depth == 0 ) return evaluateBoard(game.board());
         var max = -Infinity;
         for (var m = 0; m < moves.length; m++) {
             game.ugly_move(moves[m]);
-            var score = mini( depth - 1, game );
+            var bestMoveScore = mini( depth - 1, game, -Infinity, Infinity );
             game.undo();
-            if( score >= max )
+            if( bestMoveScore >= max )
             {
-                max = score;
+                max = bestMoveScore;
                 bestMove = moves[m];
             }
         }
@@ -29,11 +29,11 @@ var minimax = function(depth, game, maxPlayer) {
         var min = Infinity;
         for (var m = 0; m < moves.length; m++) {
             game.ugly_move(moves[m]);
-            var score = maxi( depth - 1, game );
+            var bestMoveScore = maxi( depth - 1, game, -Infinity, Infinity );
             game.undo();
-            if( score <= min )
+            if( bestMoveScore <= min )
             {
-                min = score;
+                min = bestMoveScore;
                 bestMove = moves[m];
             }
         }
@@ -42,33 +42,49 @@ var minimax = function(depth, game, maxPlayer) {
     return bestMove;
 }
 
-var maxi = function( depth, game ) {
+var maxi = function( depth, game, alpha, beta ) {
     positionCount++;
     if ( depth == 0 ) return evaluateBoard(game.board());
     var max = -Infinity;
-    var moves = game.ugly_moves()
+    var moves = game.ugly_moves();
     for (var m = 0; m < moves.length; m++) {
         game.ugly_move(moves[m]);
-        var score = mini( depth - 1, game );
+        var bestMoveScore = mini( depth - 1, game, alpha, beta );
         game.undo();
-        if( score > max )
-            max = score;
+
+        if( bestMoveScore > max )
+            max = bestMoveScore;
+        
+        if( bestMoveScore > alpha )
+            alpha = bestMoveScore;
+
+        if( beta <= alpha )
+            return bestMoveScore;
     }
+
     return max;
 }
 
-var mini = function ( depth, game ) {
+var mini = function ( depth, game, alpha, beta ) {
     positionCount++;
     if ( depth == 0 ) return evaluateBoard(game.board());
     var min = Infinity;
-    var moves = game.ugly_moves()
+    var moves = game.ugly_moves();
     for (var m = 0; m < moves.length; m++) {
         game.ugly_move(moves[m]);
-        var score = maxi( depth - 1, game );
+        var bestMoveScore = maxi( depth - 1, game, alpha, beta );
         game.undo();
-        if( score < min )
-            min = score;
+
+        if( bestMoveScore < min )
+            min = bestMoveScore;
+
+        if( bestMoveScore < beta )
+            beta = bestMoveScore;
+
+        if( beta <= alpha )
+            return bestMoveScore;
     }
+
     return min;
 }
 
@@ -92,6 +108,8 @@ var getPieceValue = function (piece) {
 
     var multi;
 
+    // to mult by -1 or not, w or b
+
     if(piece.color == 'w')
     {
         multi = 1;
@@ -100,6 +118,8 @@ var getPieceValue = function (piece) {
     {
         multi = -1;
     }
+
+    // p=pawn, n=knight, b=bishop, r=rook, q=queen, k=king
 
     if(piece.type == 'p')
     {
