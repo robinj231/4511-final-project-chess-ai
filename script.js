@@ -21,6 +21,7 @@ var minimax = function( depth, game, alpha, beta, maxPlayer, isTopLayer ) {
     for (var m = 0; m < moves.length; m++) {
         var bestMoveScore = 0;
 
+        
         game.ugly_move(moves[m]);
 
         // if(game.in_check() && !maxPlayer)
@@ -33,9 +34,6 @@ var minimax = function( depth, game, alpha, beta, maxPlayer, isTopLayer ) {
             if(game.in_checkmate())
             {
                 game.undo();
-
-                //console.log(maxPlayer + " checkmate detected");
-                //checkmates++;
 
                 if(isTopLayer)
                 {
@@ -61,8 +59,6 @@ var minimax = function( depth, game, alpha, beta, maxPlayer, isTopLayer ) {
             bestMoveScore += minimax( depth - 1, game, alpha, beta, !maxPlayer, false );
             game.undo();
         }
-
-        //console.log(maxPlayer + " score: " + bestMoveScore);
 
         if(maxPlayer)
         {
@@ -109,9 +105,7 @@ var minimax = function( depth, game, alpha, beta, maxPlayer, isTopLayer ) {
 
     if(isTopLayer)
     {
-        //console.log("Checkmates detected: " + checkmates);
-        //console.log("Black Checks detected: " + checks);
-        //console.log("White Checks detected: " + checks);
+        console.log("Min player best-move-score: " + bestMoveScore);
         return bestMove;
     }
 
@@ -136,8 +130,7 @@ var evaluateBoard = function (board) {
     return totalScore;
 }
 
-var newPhase = null
-var getPhase = function (board) {
+var setPhase = function (board) {
     var totalPhase = 636.0;
     var phase = totalPhase
     for (var i = 0; i < 8; i++) {
@@ -191,6 +184,8 @@ var getPieceValue = function (piece, x, y ) {
     {
         return 0;
     }
+
+    setPhase(game.board());
 
     var multi;
     var isWhite;
@@ -310,11 +305,6 @@ var getBestMove = function (game) {
     var moveTime = (d2 - d);
     var positionsPerS = ( positionCount * 1000 / moveTime);
 
-    if(bestMove.captured)
-    {
-        getPhase(game.board());
-    }
-
     $('#position-count').text(positionCount);
     $('#time').text(moveTime/1000 + 's');
     $('#positions-per-s').text(positionsPerS);
@@ -338,6 +328,8 @@ var onDrop = function (source, target) {
         to: target,
         promotion: 'q'
     });
+
+    
 
     removeGreySquares();
     if (move === null) {
