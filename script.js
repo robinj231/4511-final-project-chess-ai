@@ -294,6 +294,8 @@ var getBestMove = function (game, isWhite) {
         gameOverMessage();
     }
 
+    turnCount++;
+
     positionCount = 0;
     var depth = parseInt($('#search-depth').find(':selected').text());
     var aiType;
@@ -328,6 +330,7 @@ var getBestMove = function (game, isWhite) {
     var moveTime = (d2 - d);
     var positionsPerS = ( positionCount * 1000 / moveTime);
 
+    $('#turn-count').text(turnCount);
     $('#position-count').text(positionCount);
     $('#time').text(moveTime/1000 + 's');
     $('#positions-per-s').text(positionsPerS);
@@ -410,6 +413,8 @@ var cfg = {
     onMouseoverSquare: onMouseoverSquare,
     onSnapEnd: onSnapEnd
 };
+
+var turnCount = 0;
 
 if(parseInt($('#white-ai').find(':selected').text()) != 1)
 {
