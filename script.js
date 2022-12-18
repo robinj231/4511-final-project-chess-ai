@@ -253,7 +253,7 @@ var makeBestMove = function (isWhite) {
 
     if(parseInt($('#white-ai').find(':selected').text()) != 1)
     {
-        window.setTimeout(makeBestMove, 250);
+        window.setTimeout(makeBestMove, 250, !isWhite);
     }
 };
 
@@ -428,7 +428,7 @@ board = ChessBoard('board', cfg);
 
 if(parseInt($('#white-ai').find(':selected').text()) != 1)
 {
-    window.setTimeout(makeBestMove, 250);
+    window.setTimeout(makeBestMove, 250, true);
 }
 
 // Random choice AI
